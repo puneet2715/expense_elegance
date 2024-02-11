@@ -33,9 +33,6 @@ class _ExpensePageState extends State<ExpensePage> {
 
   @override
   Widget build(BuildContext context) {
-    Color accentColor =
-        Theme.of(context).colorScheme.secondary; // Access accent color
-
     return GestureDetector(
         onTap: () {
           // Hide the keyboard when user taps on empty space
@@ -49,7 +46,6 @@ class _ExpensePageState extends State<ExpensePage> {
             child: SizedBox(
               height: _calculateCardHeight(),
               child: Container(
-                // color: Theme.of(context).colorScheme.inversePrimary,
                 padding: const EdgeInsets.all(20.0),
                 child: Form(
                   key: _formKey,
@@ -141,7 +137,6 @@ class _ExpensePageState extends State<ExpensePage> {
                               _selectedCard = newValue;
                             });
                           },
-                          style: TextStyle(color: accentColor),
                           validator: (value) {
                             if (value == null || value.isEmpty) {
                               return 'Please select a credit card';
@@ -171,7 +166,6 @@ class _ExpensePageState extends State<ExpensePage> {
                               _selectedCard = newValue!;
                             });
                           },
-                          style: TextStyle(color: accentColor),
                           validator: (value) {
                             if (value == null || value.isEmpty) {
                               return 'Please select a debit card';
@@ -201,7 +195,6 @@ class _ExpensePageState extends State<ExpensePage> {
                               _selectedCard = newValue!;
                             });
                           },
-                          style: TextStyle(color: accentColor),
                           validator: (value) {
                             if (value == null || value.isEmpty) {
                               return 'Please select a UPI account';
