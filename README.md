@@ -1,2 +1,8 @@
 # expense_elegance
-A Personal Finance Tracking App
+
+Personal Finance Tracker
+
+## Getting Started
+
+This project is a starting point for a Flutter application.
+
