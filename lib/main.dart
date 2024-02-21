@@ -164,7 +164,7 @@ class _HomePageState extends State<MyHomePage> {
       ),
       body: _getPage(_currentindex),
       bottomNavigationBar: BottomNavigationBar(
-        unselectedItemColor: Colors.black,
+        unselectedItemColor: Colors.white,
         selectedItemColor: Theme.of(context).colorScheme.secondary,
         currentIndex: _currentindex,
         onTap: (index) {
