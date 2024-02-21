@@ -1,24 +1,8 @@
-// import 'package:flutter/material.dart';
-
-// class ExpensePage extends StatelessWidget {
-//   @override
-//   Widget build(BuildContext context) {
-//     return Container(
-//       color: Theme.of(context).colorScheme.inversePrimary,
-//       child: const Text(
-//         'Expense Page',
-//         style: TextStyle(fontSize: 24, color: Colors.white),
-//       ),
-//     );
-//   }
-// }
-
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class ExpensePage extends StatefulWidget {
-  const ExpensePage({super.key});
+  const ExpensePage({Key? key}) : super(key: key);
 
   @override
   _ExpensePageState createState() => _ExpensePageState();
@@ -26,264 +10,299 @@ class ExpensePage extends StatefulWidget {
 
 class _ExpensePageState extends State<ExpensePage> {
   final _formKey = GlobalKey<FormState>();
-  String? _expenseAmount = '';
-  String? _note = '';
+  String? _expenseAmount;
+  String? _note;
   String? _paymentMethod;
   String? _selectedCard;
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-        onTap: () {
-          // Hide the keyboard when user taps on empty space
-          FocusScope.of(context).unfocus();
-        },
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Card(
-            elevation: 8,
-            color: Colors.black, // Set card background color
-            child: SizedBox(
-              height: _calculateCardHeight(),
-              child: Container(
-                padding: const EdgeInsets.all(20.0),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: <Widget>[
-                      TextFormField(
-                        decoration: InputDecoration(
-                          labelText: 'Expense Amount',
-                          prefixText:
-                              '\u20B9', // Unicode character for rupee symbol
-                        ),
-                        keyboardType: TextInputType.number,
-                        inputFormatters: <TextInputFormatter>[
-                          FilteringTextInputFormatter.allow(RegExp(
-                              r'^\d*\.?\d*$')), // Allow only digits and dot
-                        ],
-                        validator: (value) {
-                          if (value!.isEmpty) {
-                            return 'Please enter expense amount';
-                          }
-                          return null;
-                        },
-                        onSaved: (value) {
-                          _expenseAmount = value!;
-                        },
+      onTap: () {
+        // Hide the keyboard when user taps on empty space
+        FocusScope.of(context).unfocus();
+      },
+      child: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Card(
+          elevation: 8,
+          child: SizedBox(
+            height: _calculateCardHeight(),
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Form(
+                key: _formKey,
+                autovalidateMode: AutovalidateMode.onUserInteraction,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: <Widget>[
+                    _buildHeader(),
+                    TextFormField(
+                      decoration: InputDecoration(
+                        labelText: 'Expense Amount',
+                        prefixText:
+                            '\u20B9', // Unicode character for rupee symbol
                       ),
-                      TextFormField(
-                        decoration: InputDecoration(
-                          labelText: 'Note',
-                        ),
-                        validator: (value) {
-                          if (value!.isEmpty) {
-                            return 'Please enter note - where the money was spent';
-                          }
-                          return null;
-                        },
-                        onSaved: (value) {
-                          _note = value!;
-                        },
+                      keyboardType: TextInputType.number,
+                      inputFormatters: <TextInputFormatter>[
+                        FilteringTextInputFormatter.allow(
+                            RegExp(r'^\d*\.?\d*$')),
+                      ],
+                      validator: (value) {
+                        if (value!.isEmpty) {
+                          return 'Please enter expense amount';
+                        }
+                        return null;
+                      },
+                      onSaved: (value) {
+                        _expenseAmount = value;
+                      },
+                    ),
+                    TextFormField(
+                      decoration: InputDecoration(
+                        labelText: 'Note',
                       ),
-                      DropdownButtonFormField<String>(
-                        value: _paymentMethod,
-                        decoration: InputDecoration(
-                          labelText: 'Payment Method',
-                        ),
-                        items: <String>[
-                          'Credit Card',
-                          'Debit Card',
-                          'UPI',
-                          'Cash'
-                        ].map((String value) {
-                          return DropdownMenuItem<String>(
-                            value: value,
-                            child: Text(value),
-                          );
-                        }).toList(),
-                        onChanged: (newValue) {
-                          setState(() {
-                            _paymentMethod = newValue!;
-                          });
-                        },
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please select payment method';
-                          }
-                          return null;
-                        },
+                      validator: (value) {
+                        if (value!.isEmpty) {
+                          return 'Please enter note - where the money was spent';
+                        }
+                        return null;
+                      },
+                      onSaved: (value) {
+                        _note = value;
+                      },
+                    ),
+                    DropdownButtonFormField<String>(
+                      value: _paymentMethod,
+                      decoration: InputDecoration(
+                        labelText: 'Payment Method',
                       ),
-                      if (_paymentMethod == 'Credit Card')
-                        DropdownButtonFormField<String>(
-                          value: _selectedCard,
-                          decoration: InputDecoration(
-                            labelText: 'Select Credit Card',
-                          ),
-                          items: <String>[
-                            'SBI Cashback',
-                            'HDFC Millennia'
-                          ] // Sample credit card list
-                              .map((String value) {
-                            return DropdownMenuItem<String>(
-                              value: value,
-                              child: Text(value),
-                            );
-                          }).toList(),
-                          onChanged: (newValue) {
+                      items: <String>[
+                        'Credit Card',
+                        'Debit Card',
+                        'UPI',
+                        'Cash'
+                      ].map((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value),
+                        );
+                      }).toList(),
+                      onChanged: (newValue) {
+                        setState(() {
+                          _paymentMethod = newValue;
+                        });
+                      },
+                    ),
+                    if (_paymentMethod == 'Credit Card')
+                      _buildCreditCardDropdown(),
+                    if (_paymentMethod == 'Debit Card')
+                      _buildDebitCardDropdown(),
+                    if (_paymentMethod == 'UPI') _buildUpiDropdown(),
+                    const SizedBox(height: 20),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        TextButton(
+                          onPressed: () {
+                            _formKey.currentState?.reset();
                             setState(() {
-                              _selectedCard = newValue;
+                              _expenseAmount = '';
+                              _note = '';
+                              _selectedCard = null;
+                              _paymentMethod = null;
                             });
                           },
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please select a credit card';
-                            }
-                            return null;
-                          },
+                          child: const Text('Clear'),
                         ),
-                      if (_paymentMethod == 'Debit Card')
-                        DropdownButtonFormField<String>(
-                          value: _selectedCard,
-                          decoration: InputDecoration(
-                            labelText: 'Select Debit Card',
-                          ),
-                          items: <String>[
-                            'HDFC',
-                            'FI',
-                            'PNB'
-                          ] // Sample debit card list
-                              .map((String value) {
-                            return DropdownMenuItem<String>(
-                              value: value,
-                              child: Text(value),
-                            );
-                          }).toList(),
-                          onChanged: (newValue) {
-                            setState(() {
-                              _selectedCard = newValue!;
-                            });
+                        ElevatedButton(
+                          onPressed: () {
+                            // Close the keyboard
+                            FocusScope.of(context).unfocus();
+                            print(
+                                "===================${_formKey.currentState}");
+                            print(_formKey.currentState!.validate());
+                            _submitExpense();
                           },
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please select a debit card';
-                            }
-                            return null;
-                          },
+                          child: const Text('Submit'),
                         ),
-                      if (_paymentMethod == 'UPI')
-                        DropdownButtonFormField<String>(
-                          value: _selectedCard,
-                          decoration: InputDecoration(
-                            labelText: 'Select UPI Account',
-                          ),
-                          items: <String>[
-                            'FI',
-                            'Jupiter',
-                            'HDFC'
-                          ] // Sample UPI account list
-                              .map((String value) {
-                            return DropdownMenuItem<String>(
-                              value: value,
-                              child: Text(value),
-                            );
-                          }).toList(),
-                          onChanged: (newValue) {
-                            setState(() {
-                              _selectedCard = newValue!;
-                            });
-                          },
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please select a UPI account';
-                            }
-                            return null;
-                          },
-                        ),
-                      const SizedBox(height: 20),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          TextButton(
-                            onPressed: () {
-                              // Clear form data and errors
-                              _formKey.currentState?.reset();
-                              setState(() {
-                                _expenseAmount = '';
-                                _note = '';
-                                _selectedCard = 'SBI Cashback';
-                                _paymentMethod = 'Credit Card';
-                              });
-                            },
-                            child: const Text('Clear'),
-                          ),
-                          ElevatedButton(
-                            onPressed: () {
-                              // Close the keyboard
-                              FocusScope.of(context).unfocus();
-
-                              if (_formKey.currentState!.validate()) {
-                                _formKey.currentState?.save();
-                                // You can handle the form submission here
-                                // For now, just print the entered data
-                                if (kDebugMode) {
-                                  print('Expense Amount: $_expenseAmount');
-                                  print('Note: $_note');
-                                  print('Payment Method: $_paymentMethod');
-                                }
-                              }
-                            },
-                            child: const Text('Submit'),
-                          ),
-                        ],
-                      ),
-                      // ElevatedButton(
-                      //   onPressed: () {
-                      //     // Close the keyboard
-                      //     FocusScope.of(context).unfocus();
-
-                      //     if (_formKey.currentState!.validate()) {
-                      //       _formKey.currentState?.save();
-                      //       // You can handle the form submission here
-                      //       // For now, just print the entered data
-                      //       if (kDebugMode) {
-                      //         print('Expense Amount: $_expenseAmount');
-                      //         print('Note: $_note');
-                      //         print('Payment Method: $_paymentMethod');
-                      //       }
-                      //     } else {
-                      //       // Increase the height of the card to accommodate error messages
-                      //     }
-                      //   },
-                      //   child: const Text('Submit'),
-                      // ),
-                    ],
-                  ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
             ),
           ),
-        ));
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHeader() {
+    return Text(
+      'Expense',
+      style: TextStyle(
+        // color: Colors.black,
+        fontSize: 24,
+        fontWeight: FontWeight.bold,
+      ),
+    );
+  }
+
+  Widget _buildCreditCardDropdown() {
+    return DropdownButtonFormField<String>(
+      value: _selectedCard,
+      decoration: InputDecoration(
+        labelText: 'Select Credit Card',
+      ),
+      items: <String>[
+        'SBI Cashback',
+        'HDFC Millennia',
+      ].map((String value) {
+        return DropdownMenuItem<String>(
+          value: value,
+          child: Text(value),
+        );
+      }).toList(),
+      onChanged: (newValue) {
+        setState(() {
+          _selectedCard = newValue;
+        });
+      },
+    );
+  }
+
+  Widget _buildDebitCardDropdown() {
+    return DropdownButtonFormField<String>(
+      value: _selectedCard,
+      decoration: InputDecoration(
+        labelText: 'Select Debit Card',
+      ),
+      items: <String>[
+        'HDFC',
+        'FI',
+        'PNB',
+      ].map((String value) {
+        return DropdownMenuItem<String>(
+          value: value,
+          child: Text(value),
+        );
+      }).toList(),
+      onChanged: (newValue) {
+        setState(() {
+          _selectedCard = newValue;
+        });
+      },
+    );
+  }
+
+  Widget _buildUpiDropdown() {
+    return DropdownButtonFormField<String>(
+      value: _selectedCard,
+      decoration: const InputDecoration(
+        labelText: 'Select UPI Account',
+      ),
+      items: <String>[
+        'FI',
+        'Jupiter',
+        'HDFC',
+      ].map((String value) {
+        return DropdownMenuItem<String>(
+          value: value,
+          child: Text(value),
+        );
+      }).toList(),
+      onChanged: (newValue) {
+        setState(() {
+          _selectedCard = newValue ?? '';
+        });
+      },
+    );
   }
 
   double _calculateCardHeight() {
-    double baseHeight = 320; // Base height without additional dropdowns
+    double baseHeight = 340;
 
-    // Check if any additional dropdown is displayed
     if (_paymentMethod == 'Credit Card' ||
         _paymentMethod == 'Debit Card' ||
         _paymentMethod == 'UPI') {
-      baseHeight +=
-          50; // Increase the height by 50 for each additional dropdown
+      baseHeight += 60;
     }
 
-    // Check if validation errors are present
     if (_formKey.currentState == null || _formKey.currentState!.validate()) {
       return baseHeight;
     } else {
-      return baseHeight + 70; // Increase height to accommodate error messages
+      return baseHeight + 70;
+    }
+  }
+
+  void _submitExpense() {
+    // Trigger form validation
+    if (_formKey.currentState!.validate()) {
+      // If validation passes, save the form data
+      _formKey.currentState?.save();
+
+      // Check if a specific option is selected based on payment method
+      if (_paymentMethod == 'Credit Card' && _selectedCard == null) {
+        // Show an error snackbar if a specific credit card is not selected
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Please select a credit card'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return; // Exit the function early
+      } else if (_paymentMethod == 'Debit Card' && _selectedCard == null) {
+        // Show an error snackbar if a specific debit card is not selected
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Please select a debit card'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return; // Exit the function early
+      } else if (_paymentMethod == 'UPI' && _selectedCard == null) {
+        // Show an error snackbar if a specific UPI option is not selected
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Please select a UPI account'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return; // Exit the function early
+      }
+
+      // All validation passed, submit expense
+      print('Expense Amount: $_expenseAmount');
+      print('Note: $_note');
+      print('Payment Method: $_paymentMethod');
+      print('Selected Card: $_selectedCard');
+
+      // Show a success snackbar
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Expense saved successfully'),
+          backgroundColor: Colors.green,
+        ),
+      );
+
+      // Reset the form after successful submission
+      _formKey.currentState?.reset();
+      setState(() {
+        _expenseAmount = ' ';
+        _note = ' ';
+        _selectedCard = null;
+        _paymentMethod = null;
+      });
+    } else {
+      // If validation fails, show an error snackbar
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Please correct the errors in the form'),
+          backgroundColor: Colors.pink[300],
+        ),
+      );
     }
   }
 }
