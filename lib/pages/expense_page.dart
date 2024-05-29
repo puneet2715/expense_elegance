@@ -32,14 +32,15 @@ class _ExpensePageState extends State<ExpensePage> {
               padding: const EdgeInsets.all(16.0),
               child: Form(
                 key: _formKey,
-                autovalidateMode: AutovalidateMode.onUserInteraction,
+                // autovalidateMode: AutovalidateMode.onUserInteraction,
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: <Widget>[
                     _buildHeader(),
                     TextFormField(
-                      decoration: InputDecoration(
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      decoration: const InputDecoration(
                         labelText: 'Expense Amount',
                         prefixText:
                             '\u20B9', // Unicode character for rupee symbol
@@ -60,12 +61,13 @@ class _ExpensePageState extends State<ExpensePage> {
                       },
                     ),
                     TextFormField(
-                      decoration: InputDecoration(
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      decoration: const InputDecoration(
                         labelText: 'Note',
                       ),
                       validator: (value) {
                         if (value!.isEmpty) {
-                          return 'Please enter note - where the money was spent';
+                          return 'Enter note - where the money was spent';
                         }
                         return null;
                       },
@@ -74,8 +76,9 @@ class _ExpensePageState extends State<ExpensePage> {
                       },
                     ),
                     DropdownButtonFormField<String>(
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
                       value: _paymentMethod,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         labelText: 'Payment Method',
                       ),
                       items: <String>[
@@ -92,6 +95,7 @@ class _ExpensePageState extends State<ExpensePage> {
                       onChanged: (newValue) {
                         setState(() {
                           _paymentMethod = newValue;
+                          _selectedCard = null;
                         });
                       },
                     ),
@@ -106,13 +110,7 @@ class _ExpensePageState extends State<ExpensePage> {
                       children: [
                         TextButton(
                           onPressed: () {
-                            _formKey.currentState?.reset();
-                            setState(() {
-                              _expenseAmount = '';
-                              _note = '';
-                              _selectedCard = null;
-                              _paymentMethod = null;
-                            });
+                            _clearForm();
                           },
                           child: const Text('Clear'),
                         ),
@@ -120,9 +118,6 @@ class _ExpensePageState extends State<ExpensePage> {
                           onPressed: () {
                             // Close the keyboard
                             FocusScope.of(context).unfocus();
-                            print(
-                                "===================${_formKey.currentState}");
-                            print(_formKey.currentState!.validate());
                             _submitExpense();
                           },
                           child: const Text('Submit'),
@@ -140,7 +135,7 @@ class _ExpensePageState extends State<ExpensePage> {
   }
 
   Widget _buildHeader() {
-    return Text(
+    return const Text(
       'Expense',
       style: TextStyle(
         // color: Colors.black,
@@ -153,12 +148,14 @@ class _ExpensePageState extends State<ExpensePage> {
   Widget _buildCreditCardDropdown() {
     return DropdownButtonFormField<String>(
       value: _selectedCard,
-      decoration: InputDecoration(
+      decoration: const InputDecoration(
         labelText: 'Select Credit Card',
       ),
       items: <String>[
         'SBI Cashback',
         'HDFC Millennia',
+        'HDFC Rupay UPI',
+        'Axis Airtel MasterCard'
       ].map((String value) {
         return DropdownMenuItem<String>(
           value: value,
@@ -176,14 +173,10 @@ class _ExpensePageState extends State<ExpensePage> {
   Widget _buildDebitCardDropdown() {
     return DropdownButtonFormField<String>(
       value: _selectedCard,
-      decoration: InputDecoration(
+      decoration: const InputDecoration(
         labelText: 'Select Debit Card',
       ),
-      items: <String>[
-        'HDFC',
-        'FI',
-        'PNB',
-      ].map((String value) {
+      items: <String>['HDFC TimesPoints', 'FI Federal'].map((String value) {
         return DropdownMenuItem<String>(
           value: value,
           child: Text(value),
@@ -237,6 +230,16 @@ class _ExpensePageState extends State<ExpensePage> {
     }
   }
 
+  void _clearForm() {
+    _formKey.currentState?.reset();
+    setState(() {
+      _expenseAmount = null;
+      _note = null;
+      _selectedCard = null;
+      _paymentMethod = null;
+    });
+  }
+
   void _submitExpense() {
     // Trigger form validation
     if (_formKey.currentState!.validate()) {
@@ -274,10 +277,6 @@ class _ExpensePageState extends State<ExpensePage> {
       }
 
       // All validation passed, submit expense
-      print('Expense Amount: $_expenseAmount');
-      print('Note: $_note');
-      print('Payment Method: $_paymentMethod');
-      print('Selected Card: $_selectedCard');
 
       // Show a success snackbar
       ScaffoldMessenger.of(context).showSnackBar(
@@ -288,18 +287,12 @@ class _ExpensePageState extends State<ExpensePage> {
       );
 
       // Reset the form after successful submission
-      _formKey.currentState?.reset();
-      setState(() {
-        _expenseAmount = ' ';
-        _note = ' ';
-        _selectedCard = null;
-        _paymentMethod = null;
-      });
+      _clearForm();
     } else {
       // If validation fails, show an error snackbar
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Please correct the errors in the form'),
+          content: const Text('Please correct the errors in the form'),
           backgroundColor: Colors.pink[300],
         ),
       );

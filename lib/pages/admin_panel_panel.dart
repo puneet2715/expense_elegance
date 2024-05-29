@@ -30,14 +30,14 @@ class _AdminPanelPageState extends State<AdminPanelPage> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text(
+              const Text(
                 'Login',
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               TextField(
                 controller: _usernameController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Username',
                 ),
                 onChanged: (value) {
@@ -46,11 +46,11 @@ class _AdminPanelPageState extends State<AdminPanelPage> {
                   });
                 },
               ),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
               TextField(
                 controller: _passwordController,
                 obscureText: true,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Password',
                 ),
                 onChanged: (value) {
@@ -59,7 +59,7 @@ class _AdminPanelPageState extends State<AdminPanelPage> {
                   });
                 },
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {
                   // Perform login validation here
@@ -69,13 +69,13 @@ class _AdminPanelPageState extends State<AdminPanelPage> {
                     });
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
+                      const SnackBar(
                         content: Text('Incorrect username or password'),
                       ),
                     );
                   }
                 },
-                child: Text('Login'),
+                child: const Text('Login'),
               ),
             ],
           ),
@@ -85,7 +85,7 @@ class _AdminPanelPageState extends State<AdminPanelPage> {
   }
 
   Widget buildAdminPage() {
-    return Center(
+    return const Center(
       child: Text(
         'Admin Page',
         style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
