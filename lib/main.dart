@@ -125,30 +125,40 @@
 // }
 
 import 'package:flutter/material.dart';
-import './pages/home_page.dart';
 import './pages/expense_page.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import './pages/home_page.dart';
 import './pages/budet_page.dart';
 import './pages/not_found.dart';
 import './pages/admin_panel_panel.dart';
 
+
 void main() {
-  runApp(MyApp());
+  runApp(
+    const ProviderScope(
+      child: MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);  // Add const constructor
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: ThemeData.dark().copyWith(
           colorScheme: const ColorScheme.dark(
-        secondary: Colors.amber,
+          secondary: Colors.amber,
       )),
-      home: MyHomePage(),
+      home: const MyHomePage(), // Make this const as well
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
+  const MyHomePage({Key? key}) : super(key: key);  // Add const constructor
+  
   @override
   _HomePageState createState() => _HomePageState();
 }

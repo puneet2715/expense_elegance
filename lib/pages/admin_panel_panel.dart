@@ -1,101 +1,143 @@
 import 'package:flutter/material.dart';
 
 class AdminPanelPage extends StatefulWidget {
+  const AdminPanelPage({Key? key}) : super(key: key);
+
   @override
   _AdminPanelPageState createState() => _AdminPanelPageState();
 }
 
 class _AdminPanelPageState extends State<AdminPanelPage> {
-  bool isLoggedIn = false;
-  String username = '';
-  String password = '';
+  bool _isLoggedIn = false;
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: isLoggedIn ? buildAdminPage() : buildLoginPage(),
+      body: _isLoggedIn ? _buildAdminPage() : _buildLoginPage(),
     );
   }
 
-  Widget buildLoginPage() {
-    return Padding(
-      padding: const EdgeInsets.all(20.0),
-      child: Card(
-        elevation: 8,
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const Text(
-                'Login',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 20),
-              TextField(
-                controller: _usernameController,
-                decoration: const InputDecoration(
-                  labelText: 'Username',
+  Widget _buildLoginPage() {
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 400),
+        child: Card(
+          elevation: 8,
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const Text(
+                  'Admin Login',
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  textAlign: TextAlign.center,
                 ),
-                onChanged: (value) {
-                  setState(() {
-                    username = value;
-                  });
-                },
-              ),
-              const SizedBox(height: 10),
-              TextField(
-                controller: _passwordController,
-                obscureText: true,
-                decoration: const InputDecoration(
-                  labelText: 'Password',
+                const SizedBox(height: 20),
+                _buildTextField(
+                  controller: _usernameController,
+                  label: 'Username',
+                  icon: Icons.person,
                 ),
-                onChanged: (value) {
-                  setState(() {
-                    password = value;
-                  });
-                },
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () {
-                  // Perform login validation here
-                  if (username == 'admin' && password == 'password') {
-                    setState(() {
-                      isLoggedIn = true;
-                    });
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Incorrect username or password'),
-                      ),
-                    );
-                  }
-                },
-                child: const Text('Login'),
-              ),
-            ],
+                const SizedBox(height: 10),
+                _buildTextField(
+                  controller: _passwordController,
+                  label: 'Password',
+                  icon: Icons.lock,
+                  isPassword: true,
+                ),
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: _attemptLogin,
+                  child: const Text('Login'),
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  Widget buildAdminPage() {
-    return const Center(
-      child: Text(
-        'Admin Page',
-        style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String label,
+    required IconData icon,
+    bool isPassword = false,
+  }) {
+    return TextField(
+      controller: controller,
+      obscureText: isPassword,
+      decoration: InputDecoration(
+        labelText: label,
+        prefixIcon: Icon(icon),
+        border: const OutlineInputBorder(),
       ),
     );
+  }
+
+  void _attemptLogin() {
+    final username = _usernameController.text;
+    final password = _passwordController.text;
+    
+    if (username == 'admin' && password == 'password') {
+      setState(() => _isLoggedIn = true);
+    } else {
+      _showErrorSnackBar('Incorrect username or password');
+    }
+  }
+
+  void _showErrorSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red,
+      ),
+    );
+  }
+
+  Widget _buildAdminPage() {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Admin Panel'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () => setState(() => _isLoggedIn = false),
+          ),
+        ],
+      ),
+      body: const Center(
+        child: Text(
+          'Welcome to the Admin Panel',
+          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+        ),
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _usernameController.dispose();
+    _passwordController.dispose();
+    super.dispose();
   }
 }
 
 void main() {
   runApp(MaterialApp(
-    home: AdminPanelPage(),
+    theme: ThemeData(
+      primarySwatch: Colors.blue,
+      inputDecorationTheme: const InputDecorationTheme(
+        border: OutlineInputBorder(),
+      ),
+    ),
+    home: const AdminPanelPage(),
   ));
 }
