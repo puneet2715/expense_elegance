@@ -306,7 +306,8 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 // Providers
-final expensesProvider = StateNotifierProvider<ExpensesNotifier, List<Expense>>((ref) {
+final expensesProvider =
+    StateNotifierProvider<ExpensesNotifier, List<Expense>>((ref) {
   return ExpensesNotifier();
 });
 
@@ -348,11 +349,31 @@ class ExpensePage extends HookConsumerWidget {
 
     // Dummy transactions
     final dummyExpenses = [
-      Expense(amount: '500', note: 'Groceries', paymentMethod: 'Credit Card', selectedCard: 'HDFC Millennia'),
-      Expense(amount: '1200', note: 'Dinner', paymentMethod: 'UPI', selectedCard: 'HDFC'),
-      Expense(amount: '300', note: 'Movie tickets', paymentMethod: 'Debit Card', selectedCard: 'HDFC TimesPoints'),
-      Expense(amount: '50', note: 'Coffee', paymentMethod: 'Cash', selectedCard: null),
-      Expense(amount: '2000', note: 'New headphones', paymentMethod: 'Credit Card', selectedCard: 'Axis Airtel MasterCard'),
+      Expense(
+          amount: '500',
+          note: 'Groceries',
+          paymentMethod: 'Credit Card',
+          selectedCard: 'HDFC Millennia'),
+      Expense(
+          amount: '1200',
+          note: 'Dinner',
+          paymentMethod: 'UPI',
+          selectedCard: 'HDFC'),
+      Expense(
+          amount: '300',
+          note: 'Movie tickets',
+          paymentMethod: 'Debit Card',
+          selectedCard: 'HDFC TimesPoints'),
+      Expense(
+          amount: '50',
+          note: 'Coffee',
+          paymentMethod: 'Cash',
+          selectedCard: null),
+      Expense(
+          amount: '2000',
+          note: 'New headphones',
+          paymentMethod: 'Credit Card',
+          selectedCard: 'Axis Airtel MasterCard'),
     ];
 
     return Scaffold(
@@ -362,19 +383,20 @@ class ExpensePage extends HookConsumerWidget {
           ListView.builder(
             itemCount: expenses.length + dummyExpenses.length,
             itemBuilder: (context, index) {
-              final expense = index < expenses.length 
-                  ? expenses[index] 
+              final expense = index < expenses.length
+                  ? expenses[index]
                   : dummyExpenses[index - expenses.length];
 
               return Card(
                 margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 child: ListTile(
                   leading: CircleAvatar(
-                    child: Text('₹'),
                     backgroundColor: Theme.of(context).colorScheme.secondary,
+                    child: const Text('₹'),
                   ),
                   title: Text('₹${expense.amount} - ${expense.note}'),
-                  subtitle: Text('${expense.paymentMethod} ${expense.selectedCard ?? ''}'),
+                  subtitle: Text(
+                      '${expense.paymentMethod} ${expense.selectedCard ?? ''}'),
                   trailing: Icon(_getPaymentMethodIcon(expense.paymentMethod)),
                 ),
               );
@@ -382,34 +404,30 @@ class ExpensePage extends HookConsumerWidget {
           ),
           // Background overlay when form is open
           if (isFormOpen)
-          GestureDetector(
-            onTap: () => ref.read(isFormOpenProvider.notifier).state = false,
-            child: Container(
-              color: Colors.black54,
+            GestureDetector(
+              onTap: () => ref.read(isFormOpenProvider.notifier).state = false,
+              child: Container(
+                color: Colors.black54,
+              ),
             ),
-          ),
           // Animated form
           AnimatedPositioned(
             duration: const Duration(milliseconds: 300),
             curve: Curves.easeInOut,
             right: 16,
-            bottom: isFormOpen ? 80 : -300, // Adjust this value based on your form height
+            bottom: isFormOpen
+                ? 80
+                : -300, // Adjust this value based on your form height
             child: AnimatedOpacity(
               duration: const Duration(milliseconds: 300),
               opacity: isFormOpen ? 1.0 : 0.0,
-              child: ExpenseFormPopup(),
+              child: ExpenseFormPopup(
+                  key: ValueKey(ref.watch(isFormOpenProvider))),
             ),
           ),
-          // Popup form
-          // if (isFormOpen)
-          //   Positioned(
-          //     right: 16,
-          //     bottom: 80, // Adjust this value to position the form above the FAB
-          //     child: ExpenseFormPopup(),
-          //   ),
         ],
       ),
-      floatingActionButton:  AnimatedContainer(
+      floatingActionButton: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
         decoration: BoxDecoration(
           boxShadow: [
@@ -425,27 +443,27 @@ class ExpensePage extends HookConsumerWidget {
           onPressed: () {
             ref.read(isFormOpenProvider.notifier).state = !isFormOpen;
           },
+          backgroundColor: Theme.of(context).colorScheme.secondary,
+          elevation: isFormOpen ? 8 : 6,
           child: AnimatedBuilder(
             animation: AlwaysStoppedAnimation(isFormOpen ? 1.0 : 0.0),
             builder: (context, child) {
               return Transform.rotate(
                 angle: isFormOpen ? 0.785398 : 0.0, // 45 degrees in radians
-                child: Icon(
+                child: const Icon(
                   Icons.add,
                   size: 24,
                 ),
               );
             },
           ),
-          backgroundColor: Theme.of(context).colorScheme.secondary,
-          elevation: isFormOpen ? 8 : 6,
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 
-   IconData _getPaymentMethodIcon(String paymentMethod) {
+  IconData _getPaymentMethodIcon(String paymentMethod) {
     switch (paymentMethod) {
       case 'Credit Card':
         return Icons.credit_card;
@@ -466,9 +484,9 @@ class ExpenseFormPopup extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final formKey = useRef(GlobalKey<FormState>());
-    final expenseAmount = useState<String?>(null);
-    final note = useState<String?>(null);
+    final formKey = useState(GlobalKey<FormState>());
+    final expenseAmount = useState<String>('');
+    final note = useState<String>('');
     final paymentMethod = useState<String?>(null);
     final selectedCard = useState<String?>(null);
 
@@ -486,36 +504,42 @@ class ExpenseFormPopup extends HookConsumerWidget {
               TextFormField(
                 decoration: const InputDecoration(
                   labelText: 'Expense Amount',
-                  prefixText: '₹',
+                  prefixText: '₹ ',
                 ),
                 keyboardType: TextInputType.number,
-                validator: (value) =>
-                    value?.isEmpty ?? true ? 'Please enter expense amount' : null,
-                onSaved: (value) => expenseAmount.value = value,
+                validator: (value) => value?.isEmpty ?? true
+                    ? 'Please enter expense amount'
+                    : null,
+                onSaved: (value) => expenseAmount.value = value ?? '',
               ),
               TextFormField(
                 decoration: const InputDecoration(labelText: 'Note'),
-                validator: (value) =>
-                    value?.isEmpty ?? true ? 'Enter note - where the money was spent' : null,
-                onSaved: (value) => note.value = value,
+                validator: (value) => value?.isEmpty ?? true
+                    ? 'Enter note - where the money was spent'
+                    : null,
+                onSaved: (value) => note.value = value ?? '',
               ),
               DropdownButtonFormField<String>(
                 value: paymentMethod.value,
                 decoration: const InputDecoration(labelText: 'Payment Method'),
                 items: ['Credit Card', 'Debit Card', 'UPI', 'Cash']
-                    .map((value) => DropdownMenuItem(value: value, child: Text(value)))
+                    .map((value) =>
+                        DropdownMenuItem(value: value, child: Text(value)))
                     .toList(),
                 onChanged: (value) {
                   paymentMethod.value = value;
                   selectedCard.value = null;
                 },
               ),
-              if (paymentMethod.value == 'Credit Card') _buildCreditCardDropdown(selectedCard),
-              if (paymentMethod.value == 'Debit Card') _buildDebitCardDropdown(selectedCard),
+              if (paymentMethod.value == 'Credit Card')
+                _buildCreditCardDropdown(selectedCard),
+              if (paymentMethod.value == 'Debit Card')
+                _buildDebitCardDropdown(selectedCard),
               if (paymentMethod.value == 'UPI') _buildUpiDropdown(selectedCard),
               const SizedBox(height: 20),
               ElevatedButton(
-                onPressed: () => _submitExpense(context, ref, formKey.value, expenseAmount.value, note.value, paymentMethod.value, selectedCard.value),
+                onPressed: () => _submitExpense(context, ref, formKey.value,
+                    expenseAmount, note, paymentMethod, selectedCard),
                 child: const Text('Submit'),
               ),
             ],
@@ -529,7 +553,12 @@ class ExpenseFormPopup extends HookConsumerWidget {
     return DropdownButtonFormField<String>(
       value: selectedCard.value,
       decoration: const InputDecoration(labelText: 'Select Credit Card'),
-      items: ['SBI Cashback', 'HDFC Millennia', 'HDFC Rupay UPI', 'Axis Airtel MasterCard']
+      items: [
+        'SBI Cashback',
+        'HDFC Millennia',
+        'HDFC Rupay UPI',
+        'Axis Airtel MasterCard'
+      ]
           .map((value) => DropdownMenuItem(value: value, child: Text(value)))
           .toList(),
       onChanged: (value) => selectedCard.value = value,
@@ -558,33 +587,46 @@ class ExpenseFormPopup extends HookConsumerWidget {
     );
   }
 
-  void _submitExpense(BuildContext context, WidgetRef ref, GlobalKey<FormState> formKey, String? amount, String? note, String? paymentMethod, String? selectedCard) {
+  void _submitExpense(
+      BuildContext context,
+      WidgetRef ref,
+      GlobalKey<FormState> formKey,
+      ValueNotifier<String> expenseAmount,
+      ValueNotifier<String> note,
+      ValueNotifier<String?> paymentMethod,
+      ValueNotifier<String?> selectedCard) {
     if (formKey.currentState?.validate() ?? false) {
       formKey.currentState?.save();
-      
-      if (paymentMethod != null &&
-          (paymentMethod == 'Credit Card' || paymentMethod == 'Debit Card' || paymentMethod == 'UPI') &&
-          selectedCard == null) {
+
+      if (paymentMethod.value != null &&
+          (paymentMethod.value == 'Credit Card' ||
+              paymentMethod.value == 'Debit Card' ||
+              paymentMethod.value == 'UPI') &&
+          selectedCard.value == null) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Please select a ${paymentMethod.toLowerCase()}'),
+            content:
+                Text('Please select a ${paymentMethod.value!.toLowerCase()}'),
             backgroundColor: Colors.red,
           ),
         );
         return;
       }
 
-      if (amount != null && note != null && paymentMethod != null) {
+      if (expenseAmount.value.isNotEmpty &&
+          note.value.isNotEmpty &&
+          paymentMethod.value != null) {
         final expense = Expense(
-          amount: amount,
-          note: note,
-          paymentMethod: paymentMethod,
-          selectedCard: selectedCard,
+          amount: expenseAmount.value,
+          note: note.value,
+          paymentMethod: paymentMethod.value!,
+          selectedCard: selectedCard.value,
         );
 
         ref.read(expensesProvider.notifier).addExpense(expense);
         ref.read(isFormOpenProvider.notifier).state = false;
 
+        // Show success message
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Expense saved successfully'),
@@ -643,33 +685,41 @@ class ExpenseFormSheet extends HookConsumerWidget {
                     prefixText: '₹',
                   ),
                   keyboardType: TextInputType.number,
-                  validator: (value) =>
-                      value?.isEmpty ?? true ? 'Please enter expense amount' : null,
+                  validator: (value) => value?.isEmpty ?? true
+                      ? 'Please enter expense amount'
+                      : null,
                   onSaved: (value) => expenseAmount.value = value,
                 ),
                 TextFormField(
                   decoration: const InputDecoration(labelText: 'Note'),
-                  validator: (value) =>
-                      value?.isEmpty ?? true ? 'Enter note - where the money was spent' : null,
+                  validator: (value) => value?.isEmpty ?? true
+                      ? 'Enter note - where the money was spent'
+                      : null,
                   onSaved: (value) => note.value = value,
                 ),
                 DropdownButtonFormField<String>(
                   value: paymentMethod.value,
-                  decoration: const InputDecoration(labelText: 'Payment Method'),
+                  decoration:
+                      const InputDecoration(labelText: 'Payment Method'),
                   items: ['Credit Card', 'Debit Card', 'UPI', 'Cash']
-                      .map((value) => DropdownMenuItem(value: value, child: Text(value)))
+                      .map((value) =>
+                          DropdownMenuItem(value: value, child: Text(value)))
                       .toList(),
                   onChanged: (value) {
                     paymentMethod.value = value;
                     selectedCard.value = null;
                   },
                 ),
-                if (paymentMethod.value == 'Credit Card') _buildCreditCardDropdown(selectedCard),
-                if (paymentMethod.value == 'Debit Card') _buildDebitCardDropdown(selectedCard),
-                if (paymentMethod.value == 'UPI') _buildUpiDropdown(selectedCard),
+                if (paymentMethod.value == 'Credit Card')
+                  _buildCreditCardDropdown(selectedCard),
+                if (paymentMethod.value == 'Debit Card')
+                  _buildDebitCardDropdown(selectedCard),
+                if (paymentMethod.value == 'UPI')
+                  _buildUpiDropdown(selectedCard),
                 const SizedBox(height: 20),
                 ElevatedButton(
-                  onPressed: () => _submitExpense(context, ref, formKey.value, expenseAmount.value, note.value, paymentMethod.value, selectedCard.value),
+                  onPressed: () => _submitExpense(context, ref, formKey.value,
+                      expenseAmount, note, paymentMethod, selectedCard),
                   child: const Text('Submit'),
                 ),
               ],
@@ -684,7 +734,12 @@ class ExpenseFormSheet extends HookConsumerWidget {
     return DropdownButtonFormField<String>(
       value: selectedCard.value,
       decoration: const InputDecoration(labelText: 'Select Credit Card'),
-      items: ['SBI Cashback', 'HDFC Millennia', 'HDFC Rupay UPI', 'Axis Airtel MasterCard']
+      items: [
+        'SBI Cashback',
+        'HDFC Millennia',
+        'HDFC Rupay UPI',
+        'Axis Airtel MasterCard'
+      ]
           .map((value) => DropdownMenuItem(value: value, child: Text(value)))
           .toList(),
       onChanged: (value) => selectedCard.value = value,
@@ -716,7 +771,7 @@ class ExpenseFormSheet extends HookConsumerWidget {
   // void _submitExpense(BuildContext context, WidgetRef ref, GlobalKey<FormState> formKey, String? amount, String? note, String? paymentMethod, String? selectedCard) {
   //   if (formKey.currentState?.validate() ?? false) {
   //     formKey.currentState?.save();
-      
+
   //     if ((paymentMethod == 'Credit Card' || paymentMethod == 'Debit Card' || paymentMethod == 'UPI') && selectedCard == null) {
   //       ScaffoldMessenger.of(context).showSnackBar(
   //         SnackBar(content: Text('Please select a ${paymentMethod.toLowerCase()}'), backgroundColor: Colors.red),
@@ -744,54 +799,73 @@ class ExpenseFormSheet extends HookConsumerWidget {
   //   }
   // }
 
-  void _submitExpense(BuildContext context, WidgetRef ref, GlobalKey<FormState> formKey, String? amount, String? note, String? paymentMethod, String? selectedCard) {
-  if (formKey.currentState?.validate() ?? false) {
-    formKey.currentState?.save();
-    
-    if (paymentMethod != null &&
-        (paymentMethod == 'Credit Card' || paymentMethod == 'Debit Card' || paymentMethod == 'UPI') &&
-        selectedCard == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Please select a ${paymentMethod.toLowerCase()}'),
-          backgroundColor: Colors.red,
-        ),
-      );
-      return;
-    }
+  void _submitExpense(
+      BuildContext context,
+      WidgetRef ref,
+      GlobalKey<FormState> formKey,
+      ValueNotifier<String?> expenseAmount,
+      ValueNotifier<String?> note,
+      ValueNotifier<String?> paymentMethod,
+      ValueNotifier<String?> selectedCard) {
+    if (formKey.currentState?.validate() ?? false) {
+      formKey.currentState?.save();
 
-    if (amount != null && note != null && paymentMethod != null) {
-      final expense = Expense(
-        amount: amount,
-        note: note,
-        paymentMethod: paymentMethod,
-        selectedCard: selectedCard,
-      );
+      if (paymentMethod.value != null &&
+          (paymentMethod.value == 'Credit Card' ||
+              paymentMethod.value == 'Debit Card' ||
+              paymentMethod.value == 'UPI') &&
+          selectedCard.value == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content:
+                Text('Please select a ${paymentMethod.value!.toLowerCase()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
+      }
 
-      ref.read(expensesProvider.notifier).addExpense(expense);
-      ref.read(isFormOpenProvider.notifier).state = false;
+      if (expenseAmount.value != null &&
+          note.value != null &&
+          paymentMethod.value != null) {
+        final expense = Expense(
+          amount: expenseAmount.value!,
+          note: note.value!,
+          paymentMethod: paymentMethod.value!,
+          selectedCard: selectedCard.value,
+        );
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Expense saved successfully'),
-          backgroundColor: Colors.green,
-        ),
-      );
+        ref.read(expensesProvider.notifier).addExpense(expense);
+        ref.read(isFormOpenProvider.notifier).state = false;
+
+        // Clear the form
+        expenseAmount.value = null;
+        note.value = null;
+        paymentMethod.value = null;
+        selectedCard.value = null;
+        formKey.currentState?.reset();
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Expense saved successfully'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Please fill all required fields'),
+            backgroundColor: Colors.pink[300],
+          ),
+        );
+      }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text('Please fill all required fields'),
+          content: const Text('Please correct the errors in the form'),
           backgroundColor: Colors.pink[300],
         ),
       );
     }
-  } else {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text('Please correct the errors in the form'),
-        backgroundColor: Colors.pink[300],
-      ),
-    );
-  }
   }
 }

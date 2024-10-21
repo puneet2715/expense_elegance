@@ -213,7 +213,7 @@ class _HomePageState extends State<MyHomePage> {
       case 2:
         return BudgetPage();
       case 3:
-        return AdminPanelPage();
+        return const AdminPanelPage();
       default:
         return NotFound(); // handle unknown index gracefully
     }

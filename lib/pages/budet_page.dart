@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 
 class BudgetPage extends StatelessWidget {
+  const BudgetPage({super.key});
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      // color: Theme.of(context).colorScheme.inversePrimary,
-      child: const Text(
-        'Budget Page',
-        style: TextStyle(fontSize: 24, color: Colors.white),
-      ),
+    return const Text(
+      'Budget Page',
+      style: TextStyle(fontSize: 24, color: Colors.white),
     );
   }
 }

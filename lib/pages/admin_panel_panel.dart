@@ -52,10 +52,10 @@ class _AdminPanelPageState extends State<AdminPanelPage> {
                 const SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: _attemptLogin,
-                  child: const Text('Login'),
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 12),
                   ),
+                  child: const Text('Login'),
                 ),
               ],
             ),
