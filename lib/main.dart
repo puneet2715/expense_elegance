@@ -131,7 +131,7 @@ import './pages/home_page.dart';
 import './pages/budet_page.dart';
 import './pages/not_found.dart';
 import './pages/admin_panel_panel.dart';
-
+import './theme/app_colors.dart';
 
 void main() {
   runApp(
@@ -142,14 +142,16 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);  // Add const constructor
+  const MyApp({Key? key}) : super(key: key); // Add const constructor
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: ThemeData.dark().copyWith(
           colorScheme: const ColorScheme.dark(
-          secondary: Colors.amber,
+        // secondary: Colors.amber,
+        primary: AppColors.primary,
+        secondary: AppColors.secondary,
       )),
       home: const MyHomePage(), // Make this const as well
     );
@@ -157,8 +159,8 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key}) : super(key: key);  // Add const constructor
-  
+  const MyHomePage({Key? key}) : super(key: key); // Add const constructor
+
   @override
   _HomePageState createState() => _HomePageState();
 }
@@ -174,7 +176,7 @@ class _HomePageState extends State<MyHomePage> {
       ),
       body: _getPage(_currentindex),
       bottomNavigationBar: BottomNavigationBar(
-        unselectedItemColor: Colors.white,
+        unselectedItemColor: Theme.of(context).colorScheme.primary,
         selectedItemColor: Theme.of(context).colorScheme.secondary,
         currentIndex: _currentindex,
         onTap: (index) {
